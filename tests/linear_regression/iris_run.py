@@ -3,7 +3,7 @@ import torch
 from nn.layers import FullyConnectedLayer
 from nn.activations import ReLU, Sigmoid
 from nn.models import FeedForwardModel
-from nn.losses import MSE, Softmax, CrossEntropy
+from nn.losses import MSE, Softmax, CrossEntropy, KLDivergence
 from nn.optimizer import GradientDescend, GradientDescendWithMomentum, GradientDescendWithNesterovMomentum
 from nn.data import get_iris
 from matplotlib import pyplot as plt
@@ -16,25 +16,27 @@ def main():
     [x, y] = data
     print(x.size())
     print(y.size())
-    #
+
     # model = FeedForwardModel(
     #     layers=[
     #         FullyConnectedLayer(
     #             4, 15, bias=True,
     #         ),
-    #         ReLU(),
+    #         # ReLU(),
+    #         Sigmoid(),
     #         FullyConnectedLayer(
     #             15, 5, bias=True,
     #         ),
-    #         # Sigmoid(),
-    #         ReLU(),
+    #         # ReLU(),
+    #         Sigmoid(),
     #         FullyConnectedLayer(
     #             5, 3, bias=True
     #         ),
     #         Softmax()
     #     ],
     #     loss=CrossEntropy(),
-    #     optimizer=GradientDescend(lr=0.0001)
+    #     optimizer = GradientDescend(lr=0.0001)
+    # #     optimizer=GradientDescendWithNesterovMomentum(lr=0.0001, moment=0.8)
     # )
 
     model = FeedForwardModel(
@@ -45,7 +47,8 @@ def main():
             Softmax()
         ],
         loss=CrossEntropy(),
-        optimizer=GradientDescend(lr=0.0001)
+        optimizer=GradientDescendWithNesterovMomentum(lr=0.001, moment=0.9)
+    # optimizer = GradientDescend(lr=0.001)
     )
 
     def train_acc(model, x, y):
@@ -54,7 +57,7 @@ def main():
         predicted_r = predicted.reshape(-1, 1)
         return torch.sum(predicted_r == y).item() / torch.numel(y)
 
-    model.train(data, n_epochs=20, batch_size=25, metric=train_acc)
+    model.train(data, n_epochs=300, batch_size=10, metric=train_acc)
 
     x, y = data
     print(train_acc(model, x, y))
