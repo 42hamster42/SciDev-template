@@ -41,7 +41,7 @@ class FeedForwardModel(Model):
         for layer in self.layers:
             layer.apply_grad()
 
-    def train(self, data, n_epochs, batch_size=None):
+    def train(self, data, n_epochs, batch_size=None, metric=None):
         x, y = data
         assert x.shape[0] == y.shape[0]
         dataset_length = y.shape[0]
@@ -58,6 +58,11 @@ class FeedForwardModel(Model):
                     loss_accum += self.step(x[i], y[i])
                 loss_accum /= dataset_length
             losses_history.append(loss_accum)
-            print(f'Epoch {epoch_n}/{n_epochs}: loss={loss_accum}')
+
+            metric_value = ''
+            if metric:
+                metric_value = f' metric={metric(self,x,y)}'
+
+            print(f'Epoch {epoch_n}/{n_epochs}: loss={loss_accum}' + metric_value)
         plt.plot(np.arange(n_epochs) + 1, losses_history)
         plt.show()

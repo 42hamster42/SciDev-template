@@ -22,4 +22,5 @@ def get_iris():
     x = torch.tensor(x, dtype=torch.float)
     # x = (x - x.mean()) / x.std()
     y = torch.tensor(np.expand_dims(y, 1), dtype=torch.float)
+    # y = torch.tensor(y)
     return x, y
