@@ -24,6 +24,12 @@ class Optimizer(ABC):
     def __init__(self, *args):
         pass
 
+    def model_step(self, model, x, y):
+        model.zero_grad()
+        loss = model.backward(x, y)
+        model.apply_grad()
+        return loss
+
     @abstractmethod
     def step(self, weights, grad):
         raise NotImplementedError
@@ -36,10 +42,7 @@ class Model(Module, ABC):
         self.optimizer = optimizer
 
     def step(self, x, y):
-        self.zero_grad()
-        loss = self.backward(x, y)
-        self.apply_grad()
-        return loss
+        return self.optimizer.model_step(self, x, y)
 
     def train(self, data, n_epochs):
         x, y = data

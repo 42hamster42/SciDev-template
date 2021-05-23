@@ -4,7 +4,7 @@ from nn.layers import FullyConnectedLayer
 from nn.activations import ReLU, Sigmoid
 from nn.models import FeedForwardModel
 from nn.losses import MSE, Softmax, CrossEntropy
-from nn.optimizer import GradientDescend
+from nn.optimizer import GradientDescend, GradientDescendWithMomentum, GradientDescendWithNesterovMomentum
 from nn.data import get_iris
 from matplotlib import pyplot as plt
 

@@ -28,13 +28,30 @@ class GradientDescendWithMomentum(GradientDescend):
         self.mov_average_gradients[id(weights)] = mov_average_gradient
 
 
-# class GradientDescendWithNesterovMomentum(Optimizer):
-#     def __init__(self, lr):
-#         super(GradientDescend, self).__init__()
-#         self._lr = lr
-#
-#         # raise NotImplementedError  # TODO: replace line with your code
-#
-#     def step(self, weights, grad):
-#         self.mov_average_gradient = self.mov_average_gradient * self.moment + (1 - self.moment) * self._lr * GRAD  ###################
-#         weights -= self.mov_average_gradient
+class GradientDescendWithNesterovMomentum(GradientDescend):
+    def __init__(self, lr, moment):
+        super(GradientDescend, self).__init__()
+        self._lr = lr
+        self.moment = moment
+        self.mov_average_gradients = dict()
+        self.moment_mode = True
+
+    def model_step(self, model, x, y):
+        self.moment_mode = True
+        model.apply_grad()
+        self.moment_mode = False
+        model.zero_grad()
+        loss = model.backward(x, y)
+        model.apply_grad()
+        return loss
+
+    def step(self, weights, grad):
+        mov_average_gradient = self.mov_average_gradients.get(id(weights), torch.zeros_like(weights))
+        if self.moment_mode:
+            mov_average_gradient *= self.moment
+            weights -= mov_average_gradient
+        else:
+            current_shift = (1 - self.moment) * self._lr * grad
+            mov_average_gradient += current_shift
+            weights -= current_shift
+        self.mov_average_gradients[id(weights)] = mov_average_gradient
