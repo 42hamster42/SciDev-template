@@ -43,7 +43,27 @@ class CrossEntropy(Module):
 
 
 class KLDivergence(Module):
-    pass  # TODO: replace line with your code
+    def kl_divergence(self, p, q):
+        EPS = 1e-8
+        clamped = torch.clamp(p, EPS, 1 - EPS)
+        return torch.sum(p * (torch.log(clamped) - torch.log(q)))
+
+    def one_hot_target(self, prediction, target):
+        if len(prediction.size()) == 1:
+            prediction = prediction.reshape((1, prediction.size()[0]))
+        result = torch.zeros_like(prediction)
+        result[torch.arange(prediction.size()[0], dtype=torch.long), target.long()] = 1
+        return result
+
+    def forward(self, *args):
+        [x, y] = args
+        y = self.one_hot_target(x, y)
+        return self.kl_divergence(y, x)
+
+    def backward(self, x, y):
+        y = self.one_hot_target(x, y)
+        self.grad = -y / x
+        return self.grad
 
 
 class MSE(Module):
