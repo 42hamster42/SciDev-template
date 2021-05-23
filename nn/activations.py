@@ -14,7 +14,6 @@ class Sigmoid(Module):
         return self._sigmoid(args[0])
 
     def backward(self, x, grad_output):  # compute grad
-        assert self.grad is None
         self.grad = self._sigmoid(x) * (1 - self._sigmoid(x)) * grad_output
         return self.grad
 
@@ -38,8 +37,28 @@ class ReLU(Module):
         return self._relu(args[0])
 
     def backward(self, x, grad_output):  # compute grad
-        assert self.grad is None
         self.grad = (x > 0) * grad_output
+        return self.grad
+
+    def zero_grad(self):
+        self.grad = None
+
+    def apply_grad(self):
+        # Ничего не делаем
+        pass
+
+
+class Tanh(Module):
+    def __init__(self):
+        self.grad = None
+
+    def forward(self, *args):
+        assert len(args) == 1
+        x = args[0]
+        return torch.tanh(x)
+
+    def backward(self, x, grad_output):  # compute grad
+        self.grad = torch.cosh(x) ** (-2) * grad_output
         return self.grad
 
     def zero_grad(self):
